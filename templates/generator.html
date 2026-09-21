@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card-glass">
+
+        <!-- Title Header (Spans full width above grid) -->
+        <div class="title-container">
+            <h1 class="title text-uppercase">QR Generator</h1>
+        </div>
+
+        <!-- Left Column: Generator Form -->
+        <form action="{{ url_for('generator') }}" method="POST" class="qr-form" id="qr-generator-form">
+
+            <!-- Content Input -->
+            <div class="mb-3">
+                <label for="content" class="form-label">Text or URL</label>
+
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        name="content"
+                        id="content"
+                        class="form-control"
+                        placeholder="https://example.com or your text"
+                        value="{{ content or '' }}"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+            <!-- Settings Row: Size & Border -->
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="box_size" class="form-label">QR Code Size</label>
+
+                    <select name="box_size" id="box_size" class="form-select">
+                        <option value="5" {% if qr_code and qr_code.box_size == 5 %}selected{% endif %}>Small</option>
+                        <option value="10" {% if not qr_code or qr_code.box_size == 10 %}selected{% endif %}>Medium</option>
+                        <option value="15" {% if qr_code and qr_code.box_size == 15 %}selected{% endif %}>Large</option>
+                        <option value="20" {% if qr_code and qr_code.box_size == 20 %}selected{% endif %}>Extra Large</option>
+                    </select>
+                </div>
+
+                <div class="col-6">
+                    <label for="border" class="form-label">Border Size</label>
+
+                    <select name="border" id="border" class="form-select">
+                        <option value="0" {% if qr_code and qr_code.border == 0 %}selected{% endif %}>No Border</option>
+                        <option value="2" {% if qr_code and qr_code.border == 2 %}selected{% endif %}>Small</option>
+                        <option value="4" {% if not qr_code or qr_code.border == 4 %}selected{% endif %}>Medium</option>
+                        <option value="6" {% if qr_code and qr_code.border == 6 %}selected{% endif %}>Large</option>
+                        <option value="8" {% if qr_code and qr_code.border == 8 %}selected{% endif %}>Extra Large</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Colors Pickers -->
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="fill_color" class="form-label">QR Code Color</label>
+                    <input
+                        type="color"
+                        name="fill_color"
+                        id="fill_color"
+                        class="form-control form-control-color"
+                        value="{{ qr_code.fill_color if qr_code else '#000000' }}"
+                        title="Choose QR code color"
+                    >
+                </div>
+
+                <div class="col-6">
+                    <label for="back_color" class="form-label">Background</label>
+                    <input
+                        type="color"
+                        name="back_color"
+                        id="back_color"
+                        class="form-control form-control-color"
+                        value="{{ qr_code.back_color if qr_code else '#FFFFFF' }}"
+                        title="Choose background color"
+                    >
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button type="submit" class="btn btn-generate" id="generate-btn">
+                <span>Generate QR Code</span>
+            </button>
+        </form>
+
+        <!-- Right Column: QR Code Display -->
+        <div class="qr-code-box" id="qr-container">
+            {% if qr_code and qr_code.qr_image %}
+                <a
+                    href="{{ qr_code.get_qr_code_image }}"
+                    download="qr_code.png"
+                    class="qr-download-link"
+                    data-bs-toggle="tooltip"
+                    data-bs-custom-class="custom-tooltip"
+                    data-bs-placement="bottom"
+                    title="Click to Download"
+                >
+                    <img
+                        src="{{ qr_code.get_qr_code_image }}"
+                        class="qr-img"
+                        id="qr-img"
+                        alt="Generated QR Code"
+                    />
+                </a>
+            {% else %}
+                <div class="placeholder-wrapper" id="placeholder-text">
+                    <div class="placeholder-icon">⚡</div>
+                    <p>Enter a link or text on the left to generate your custom cyberpunk QR code.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/generator.css') }}">
+<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/generator.js') }}"></script>
+{% endblock %}
+
